@@ -1,6 +1,6 @@
 # AWS Certified Cloud Practitioner (CLF-C02) – Anotações e Guia de Estudos
 
-Este repositório reúne minhas **anotações, dicas e recomendações de materiais** para a certificação **AWS Certified Cloud Practitioner (CLF-C02)**.
+Aqui você encontrará minhas **anotações, dicas e recomendações de materiais** para a certificação **AWS Certified Cloud Practitioner (CLF-C02)**.
 
 O conteúdo é baseado na minha experiência pessoal de estudos, cursos realizados e simulados feitos ao longo da preparação para a prova.
 
