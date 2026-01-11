@@ -60,6 +60,7 @@ Ele te ajuda a se aprofundar nos serviços em um nível maior do que o exigido n
 <br>
 
 ### 4️⃣ Minhas anotações pessoais
+https://1drv.ms/b/c/9ac73174019678d5/IQD3jLaKkJy3Rq4MZy1oo65GAbc6Huovo0Go_7b13AgEDgE?e=htmedq
 
 Este repositório contém um arquivo PDF com **mais de 70 páginas de anotações**, criadas com base:
 - Nas aulas assistidas
