@@ -102,7 +102,7 @@ O **Amazon Bedrock** é o serviço da AWS que permite a criação de modelos de 
 <br>
 
 ### Foundation Models (FMs)
-São modelos de larga escala pré-treinados em grandes volumes de dados não rotulados (imagens, vídeos, documentos, etc) com o objetivo de aprender padrões gerais da linguagem e do mundo.
+São modelos de larga escala pré-treinados em grandes volumes de **dados não rotulados** (imagens, vídeos, documentos, etc) com o objetivo de aprender padrões gerais da linguagem e do mundo.
 
 Esses modelos servem como base reutilizável sem a necessidade de criar um modelo do zero a cada demanda. Você pode usar o modelo "as is" ou adaptar de forma privada.
 
@@ -183,6 +183,23 @@ Enquanto o *Amazon Bedrock* é como alugar um carro pronto para dirigir (Serverl
     * **Serverless (Sem Servidor):** A infraestrutura liga e desliga sozinha. Ideal para tráfego intermitente ou imprevisível. *Ex: Um chatbot que não recebe acessos de madrugada, mas tem picos ao meio-dia.*
     * **Asynchronous (Assíncrono):** Para requisições pesadas que demoram minutos para processar (limite de até 1 hora) e payloads grandes (até 1GB).
 
+<br>
+
+### Ferramentas de Preparação e Democratização
+
+Para garantir a qualidade dos dados e permitir que perfis menos técnicos também criem modelos, o SageMaker oferece:
+
+#### **SageMaker Canvas (No-Code ML)**
+É a ferramenta visual de **arrastar e soltar** para analistas de negócios. Permite criar previsões de ML sem escrever uma única linha de código. Você importa os dados, o Canvas escolhe o melhor algoritmo e gera o modelo automaticamente.
+
+#### **SageMaker Data Wrangler**
+Focado em **Data Preparation**. Ele reduz o tempo de limpeza e agregação de dados de semanas para minutos. Possui mais de 300 transformações prontas (como preencher valores ausentes ou converter formatos) e permite visualizar o impacto dessas mudanças em gráficos antes do treino.
+
+#### **SageMaker Ground Truth**
+O segredo de um bom modelo são dados bem rotulados. O Ground Truth gerencia o processo de **rotulagem de dados (Labeling)**. 
+* **Anotação Humana:** Você pode usar equipes próprias, fornecedores terceirizados ou o *Amazon Mechanical Turk* para rotular imagens, classificar textos ou identificar objetos em vídeos.
+* **Auto-labeling:** Com o tempo, ele aprende a rotular os dados sozinho, reduzindo custos.
+  
 <br>
 
 -----
@@ -281,7 +298,7 @@ Prompt Engineering (ou Engenharia de Prompt) é a técnica de projetar, testar e
 
 ### Parâmetros de Inferência
 * **Temperature:** Controla a criatividade (0.1 = factual; 0.8 = criativo).
-* **Top-P / Top-K:** Filtram as palavras mais prováveis para evitar respostas sem nexo.
+* **Top-P / Top-K:** Filtram as P/K palavras mais prováveis que o modelo gerou, assim ele pode escolher uma delas para evitar respostas sem nexo. 
 * **Max Tokens:** Limita o tamanho da resposta (controla custo e latência).
 * **Length (Tamanho da Resposta):** Define a extensão limite da saída desejada. Em muitas APIs e no Bedrock, funciona em conjunto ou como sinônimo de *Max Tokens* para evitar que o modelo gere textos excessivamente longos.
 * **Prompt Latency (Latência do Prompt):** Embora não seja um botão que você "configura", é uma métrica crucial afetada pelos parâmetros acima. É o tempo que o modelo leva para processar a sua entrada e começar a responder. Prompts gigantescos ou limites de tokens muito altos aumentam a latência.
@@ -336,12 +353,43 @@ Garantir que os sistemas de IA sejam transparentes, confiáveis e seguros durant
 * **Model Cards / AI Service Cards:** Documentação padronizada na AWS com uso pretendido, limitações e riscos de um modelo (essencial para auditoria).
 * **Amazon A2I (Augmented AI):** Adiciona revisão humana (Human-in-the-loop) para predições de IA que precisam de validação.
 
-<br>
+Além das ferramentas específicas de IA, o SageMaker e o Bedrock utilizam a base de segurança da AWS para garantir que os dados estejam protegidos e as operações sejam auditáveis.
 
-### Responsabilidade Compartilhada e Monitoramento
-* **Modelo de Responsabilidade Compartilhada:** A AWS cuida da segurança **DA** nuvem (infraestrutura e serviços base). O Cliente cuida da segurança **NA** nuvem (configuração de IAM, guardrails, criptografia dos próprios dados).
-* **GenAI Security Scoping Matrix:** Classifica o nível de controle e risco da sua aplicação (Escopo 1: Usar app de terceiros -> Escopo 5: Treinar o próprio modelo do zero).
-  
+* **AWS CloudTrail:** Monitora e registra todas as chamadas de API dentro da conta. É essencial para auditoria, pois permite saber exatamente **quem** acessou um modelo de ML ou alterou uma permissão de dados e **quando** isso ocorreu.
+* **AWS Config:** Monitora continuamente as configurações dos recursos. Ele garante que o ambiente de ML esteja em conformidade com as regras da empresa (ex: garantir que todos os buckets do S3 com dados sensíveis estejam criptografados).
+* **Amazon Inspector:** Realiza varreduras automatizadas de segurança. No contexto de ML, ele é usado para identificar vulnerabilidades em instâncias EC2 ou imagens de container (ECR) que rodam os modelos.
+* **AWS Artifact:** Seu portal de autoatendimento para relatórios de conformidade. É onde você baixa documentos (como relatórios SOC, PCI ou certificações ISO) para provar a auditores que a infraestrutura da AWS onde sua IA roda é segura.
+* **AWS KMS (Key Management Service):** Gerencia as chaves de criptografia. No SageMaker, o KMS garante que os dados em repouso (armazenados) e em trânsito estejam ilegíveis para qualquer pessoa sem a chave autorizada.
+* **Amazon VPC (Virtual Private Cloud):** Permite isolar o tráfego de rede dos seus modelos de ML da internet pública, criando um ambiente privado e seguro para o processamento de dados confidenciais.
+* **AWS IAM (Identity and Access Management):** É o coração da segurança. Ele define **quem** (usuários/sistemas) pode acessar **o quê** (S3, SageMaker, Bedrock).
+    * **Roles (Funções):** Essencial para o SageMaker; você atribui uma *Role* à instância para que ela tenha permissão de ler dados no S3 sem precisar de senhas fixas.
+    * **Princípio do Privilégio Mínimo:** Garante que um cientista de dados tenha acesso apenas aos buckets necessários, e não a toda a infraestrutura da conta.
+
+A segurança na AWS funciona sob um regime de divisão de tarefas, onde a AWS cuida da infraestrutura e o cliente cuida do que coloca nela.
+
+| Componente | Responsabilidade AWS | Responsabilidade Cliente |
+| :--- | :--- | :--- |
+| **Modelos (Bedrock)** | Segurança do modelo base e infraestrutura da API. | Configuração de Guardrails e filtragem de prompts. |
+| **Dados (S3)** | Disponibilidade física do armazenamento. | Permissões de acesso (IAM) e criptografia de buckets. |
+| **Treinamento (SageMaker)** | Saúde das instâncias e infraestrutura de treino. | Segurança do dataset e privilégios da Role de execução. |
+
+A AWS opera em uma estrutura física distribuída globalmente para garantir alta disponibilidade, baixa latência e resiliência a falhas. Essa infraestrutura é dividida em três componentes principais:
+
+#### **1. Regiões (Regions)**
+Uma Região é um local físico no mundo onde a AWS agrupa seus data centers. 
+* **Localidade:** Cada região é independente e isolada das outras (Ex: `us-east-1` na Virgínia ou `sa-east-1` em São Paulo).
+* **Compliance:** Permitem que você escolha onde armazenar os dados para atender a requisitos legais de soberania de dados (como a LGPD no Brasil).
+
+#### **2. Zonas de Disponibilidade (Availability Zones - AZs)**
+Cada Região é composta por várias Zonas de Disponibilidade (geralmente 3 ou mais).
+* **Isolamento:** Uma AZ consiste em um ou mais data centers discretos, com energia, rede e conectividade redundantes.
+* **Alta Disponibilidade:** Elas são conectadas por redes de fibra óptica de altíssima velocidade e baixa latência. Se você hospeda sua aplicação em múltiplas AZs, ela sobrevive caso um data center inteiro sofra um desastre (incêndio, inundação ou queda de energia).
+
+#### **3. Locais de Borda (Edge Locations)**
+São pontos de presença localizados nas principais cidades ao redor do mundo, usados para entregar conteúdo com a menor latência possível.
+* **CloudFront:** É o serviço de CDN (Content Delivery Network) que utiliza as Edge Locations para fazer o *cache* de vídeos, imagens e dados próximos ao usuário final.
+* **IA na Borda:** Serviços como o **Amazon Polly** ou ferramentas de segurança como **AWS Shield** e **WAF** operam nessas localidades para processar requisições o mais rápido possível, antes mesmo de chegarem à Região principal.
+
 <br>
 
 -----
